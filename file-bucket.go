@@ -8,23 +8,46 @@ import (
     "os"
     "encoding/json"
     "regexp"
+    "strings"
+    "path/filepath"
 )
+
+var conf Configuration
 
 // test with curl -X POST localhost:1234/upload -F  file=@<FILE>
 func BucketRepoHandler(w http.ResponseWriter, req *http.Request) {
-    
+
+    // token validation
+    token := strings.Split(req.URL.Path, "/")[1]
+    if !conf.bucketExists(token) {
+        http.Error(w, "token doesn't exist", 403)
+        return
+    }
 
     file_r, handler, err := req.FormFile("file")
     if err != nil {
-        fmt.Println(err)
+        http.Error(w, "missed 'file' field in form", 412)
+        return
     }
 
-    file_w, err := os.Create(handler.Filename)
+    path := filepath.Join(conf.buckets_home, token)
+    dst_file := filepath.Join(path, handler.Filename)
+    if _, err = os.Stat(dst_file); err == nil {
+        http.Error(w, "file exists", 405)
+        return
+    }
+
+    if err = os.MkdirAll(path, 0700); err != nil {
+        http.Error(w, "cannot create bucket dir or writable", 401)
+        return
+    }
+
+    file_w, err := os.Create(dst_file)
     if err != nil { panic(err) }
     defer file_w.Close()
 
-    _, err = io.Copy(file_w, file_r)
-    if err != nil {
+    fmt.Printf(" * Recieving file %s\n", dst_file)
+    if _, err = io.Copy(file_w, file_r); err != nil {
         panic(err)
     }
 
@@ -84,7 +107,6 @@ func (h *RegexpHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
     }
 }
 
-
 func main() {
     /*
      * open read config file and init the struct
@@ -92,7 +114,7 @@ func main() {
     file, err := os.Open("config.json")
     defer file.Close()
     decoder := json.NewDecoder(file)
-    conf := Configuration{}
+    conf = Configuration{}
     err = decoder.Decode(&conf)
     if err != nil {
       fmt.Println("error:", err)
