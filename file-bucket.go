@@ -30,7 +30,7 @@ func BucketRepoHandler(w http.ResponseWriter, req *http.Request) {
         return
     }
 
-    path := filepath.Join(conf.buckets_home, token)
+    path := filepath.Join(conf.Home, token)
     dst_file := filepath.Join(path, handler.Filename)
     if _, err = os.Stat(dst_file); err == nil {
         http.Error(w, "file exists", 405)
@@ -55,18 +55,18 @@ func BucketRepoHandler(w http.ResponseWriter, req *http.Request) {
 
 type Configuration struct {
     Buckets []string
-    host string
-    port int
-    buckets_home string
+    Host string
+    Port int
+    Home string
 }
 func (c *Configuration) listenAddr() string {
-    if c.host == "" {
-        c.host = "0.0.0.0"
+    if c.Host == "" {
+        c.Host = "0.0.0.0"
     }
-    if c.port == 0 {
-        c.port = 1234
+    if c.Port == 0 {
+        c.Port = 1234
     }
-    return fmt.Sprintf("%s:%d", c.host, c.port)
+    return fmt.Sprintf("%s:%d", c.Host, c.Port)
 }
 func (c *Configuration) bucketExists(name string) bool {
     for _, element := range c.Buckets {
@@ -112,7 +112,6 @@ func main() {
      * open read config file and init the struct
      */
     file, err := os.Open("config.json")
-    defer file.Close()
     decoder := json.NewDecoder(file)
     conf = Configuration{}
     err = decoder.Decode(&conf)

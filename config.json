@@ -1,6 +1,6 @@
 {
  "buckets": ["3547264155b541de5cb6a7eae0431a14", "9c7c64cfac3b922aacd4ba68cb631e82"],
  "port": 1234,
- "buckets_home": "buckets/",
+ "home": "buckets/",
  "host": "0.0.0.0"
 }
