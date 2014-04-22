@@ -111,7 +111,14 @@ func main() {
     /*
      * open read config file and init the struct
      */
-    file, err := os.Open("config.json")
+    file, err := os.Open("/etc/file-bucket/config.json")
+    if err != nil {
+        file, err = os.Open("config.json")
+        if err != nil {
+            fmt.Println("ERROR cannot read config file")
+            return
+        }
+    }
     decoder := json.NewDecoder(file)
     conf = Configuration{}
     err = decoder.Decode(&conf)
