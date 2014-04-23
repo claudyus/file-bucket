@@ -19,3 +19,13 @@ On your client you can simple push backup file using curl like:
 ```
 $ curl -X POST <serverip>:1234/<bucket_token> -F file=@<file>
 ```
+
+The server will responde with ```200``` on success or the following errorcode are used:
+
+| ErrorCode | Detail       |
+| --------- | -------------|
+| 403 | token doesn't exist |
+| 412 | missed file |
+| 405 | file yet exist |
+| 401 | cannot create bucket dirs |
+
