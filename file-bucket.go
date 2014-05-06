@@ -30,6 +30,22 @@ func BucketRepoHandler(w http.ResponseWriter, req *http.Request) {
         return
     }
 
+    /* call the pre-push hook (if exists):
+     *   if it returns 0 continue
+     *   if it returns 1 deny the upload
+     *   if it returns 2 override is allowed,
+     */
+    override := false
+    cmd := exec.Command("/etc/file-bucket/hooks/pre-push.sh")
+    exit_code := cmd.Run();
+    if exit_code.Sys() == 2 {
+        override = true
+    }
+    if exit_code.Sys() == 1 {
+        http.Error(w, "upload aborted due to pre-push hook", 409)
+        return
+    }
+
     path := filepath.Join(conf.Home, token)
     dst_file := filepath.Join(path, handler.Filename)
     if _, err = os.Stat(dst_file); err == nil {
