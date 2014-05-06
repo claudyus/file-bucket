@@ -6,9 +6,11 @@ import (
     "log"
     "io"
     "os"
+    "os/exec"
     "encoding/json"
     "regexp"
     "strings"
+    "syscall"
     "path/filepath"
 )
 
@@ -36,7 +38,7 @@ func BucketRepoHandler(w http.ResponseWriter, req *http.Request) {
      *   if it returns 2 override is allowed,
      */
     override := false
-    cmd := exec.Command("/etc/file-bucket/hooks/pre-push.sh")
+    cmd := exec.Command("/etc/file-bucket/pre-push.sh", token)
     exit_code := cmd.Run();
     if exit_code.Sys() == 2 {
         override = true
@@ -60,13 +62,15 @@ func BucketRepoHandler(w http.ResponseWriter, req *http.Request) {
 
     file_w, err := os.Create(dst_file)
     if err != nil { panic(err) }
-    defer file_w.Close()
 
     fmt.Printf(" * Recieving file %s\n", dst_file)
     if _, err = io.Copy(file_w, file_r); err != nil {
         panic(err)
     }
+    file_w.Close()
 
+    cmd = exec.Command("/etc/file-bucket/post-push.sh", token)
+    cmd.Run();
 }
 
 type Configuration struct {
