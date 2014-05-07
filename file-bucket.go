@@ -77,9 +77,8 @@ func BucketRepoHandler(w http.ResponseWriter, req *http.Request) {
     file_w.Close()
 
     /* execute the post-push hook and return stdout to client */
-    cmd = exec.Command("/etc/file-bucket/post-push.sh", token, dst_file, req.RemoteAddr)
-    cmd.Run()
-
+    out, _:= exec.Command("/etc/file-bucket/post-push.sh", token, dst_file, req.RemoteAddr).Output()
+    w.Write(out)
 }
 
 type Configuration struct {
