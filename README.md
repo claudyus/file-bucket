@@ -28,6 +28,7 @@ The server will responde with ```200``` on success or the following errorcode ar
 | 412 | missed file in form post |
 | 405 | file yet exist on filesystem |
 | 401 | cannot create bucket dirs |
+| 409 | abort due to pre-push script (see below) |
 
 ## Extending the behaviour
 
@@ -38,18 +39,23 @@ At the moment the following hooks are defined:
  * pre-push.sh
  * post-push.sh
 
-The ```pre-push.sh``` script is executed before the file check on the filesystem, this script should return 0 to allow the file upload,
-should return 1 to abort transition and could return 2 to allow file overwrite.
+The ```/etc/file-bucket/pre-push.sh``` script is executed before the check of the file presence on the filesystem is executed.
+This script should return **0** to allow the file upload, should return **1** to abort the upload and could return **2** to allow file overwrite.
 This script is called with the arguments:
  - bucket token
  - upload filename
- - file size
- - remote ip client
+ - file size (TODO)
+ - remote ip_client:port
 
-The ```post-push.sh``` script is executed after the file upload and can be used to manipulate the file and deploy it somewhere.
+The ```/etc/file-bucket/post-push.sh``` script is executed after the file upload and can be used to manipulate the file itself.
 This script is called with the arguments:
  - bucket_token
  - complete_filename_with_path
- - remote ip client
+ - remote ip_client:port
 
-Some files as example are present in the hooks/ directory.
+The stdout of this command il passed back to the client as http body. Http return code is set to 200
+
+**Note: All hooks script should have executable flag set.**
+
+### Hooks examples
+Some scripts files as example are availables inside the hooks/ directory.

@@ -38,12 +38,10 @@ func BucketRepoHandler(w http.ResponseWriter, req *http.Request) {
      *   if it returns 2 overwrite is allowed,
      */
     overwrite := false
-    cmd := exec.Command("/etc/file-bucket/pre-push.sh", token)
-    /*if err := cmd.Start(); err == nil {
-      if err := cmd.Wait(); err != nil {*/
+    cmd := exec.Command("/etc/file-bucket/pre-push.sh", token,
+        handler.Filename, "0", req.RemoteAddr)  // FIXME find the file size
     err = cmd.Run()
     exitCode := err.(*exec.ExitError)
-    log.Printf("exitCode: %d", exitCode.Sys())
     if exitCode.Sys().(syscall.WaitStatus).ExitStatus() == 1 {
         http.Error(w, "upload aborted due to pre-push hook", 409)
         return
@@ -51,9 +49,6 @@ func BucketRepoHandler(w http.ResponseWriter, req *http.Request) {
     if exitCode.Sys().(syscall.WaitStatus).ExitStatus() == 2 {
         overwrite = true
     }
-    /*
-        }
-    }*/
 
     /* ensure that the file doesn't yet exists */
     path := filepath.Join(conf.Home, token)
@@ -63,11 +58,13 @@ func BucketRepoHandler(w http.ResponseWriter, req *http.Request) {
         return
     }
 
+    /* create the bucket path if needed or exit */
     if err = os.MkdirAll(path, 0700); err != nil {
         http.Error(w, "cannot create bucket dir or writable", 401)
         return
     }
 
+    /* create, recieve and close the file */
     file_w, err := os.Create(dst_file)
     if err != nil {
         panic(err)
@@ -79,9 +76,10 @@ func BucketRepoHandler(w http.ResponseWriter, req *http.Request) {
     }
     file_w.Close()
 
-    /* execute the post-push hook and write out the ouput*/
-    cmd = exec.Command("/etc/file-bucket/post-push.sh", token)
+    /* execute the post-push hook and return stdout to client */
+    cmd = exec.Command("/etc/file-bucket/post-push.sh", token, dst_file, req.RemoteAddr)
     cmd.Run()
+
 }
 
 type Configuration struct {
