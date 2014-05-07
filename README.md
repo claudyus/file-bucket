@@ -24,8 +24,32 @@ The server will responde with ```200``` on success or the following errorcode ar
 
 | ErrorCode | Detail       |
 | --------- | -------------|
-| 403 | token doesn't exist |
-| 412 | missed file |
-| 405 | file yet exist |
+| 403 | given token doesn't exist |
+| 412 | missed file in form post |
+| 405 | file yet exist on filesystem |
 | 401 | cannot create bucket dirs |
 
+## Extending the behaviour
+
+```file-bucket``` support a series of hooks that can be used to extend the default behaviour.
+For example you can email someone when a file is pushed or deploy the file as a lxc container or the contained files in an automatic way.
+
+At the moment the following hooks are defined:
+ * pre-push.sh
+ * post-push.sh
+
+The ```pre-push.sh``` script is executed before the file check on the filesystem, this script should return 0 to allow the file upload,
+should return 1 to abort transition and could return 2 to allow file overwrite.
+This script is called with the arguments:
+ - bucket token
+ - upload filename
+ - file size
+ - remote ip client
+
+The ```post-push.sh``` script is executed after the file upload and can be used to manipulate the file and deploy it somewhere.
+This script is called with the arguments:
+ - bucket_token
+ - complete_filename_with_path
+ - remote ip client
+
+Some files as example are present in the hooks/ directory.

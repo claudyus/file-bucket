@@ -1,15 +1,17 @@
 package main
 
 import (
-    "fmt"
-    "net/http"
-    "log"
-    "io"
-    "os"
     "encoding/json"
+    "fmt"
+    "io"
+    "log"
+    "net/http"
+    "os"
+    "os/exec"
+    "path/filepath"
     "regexp"
     "strings"
-    "path/filepath"
+    "syscall"
 )
 
 var conf Configuration
@@ -33,22 +35,30 @@ func BucketRepoHandler(w http.ResponseWriter, req *http.Request) {
     /* call the pre-push hook (if exists):
      *   if it returns 0 continue
      *   if it returns 1 deny the upload
-     *   if it returns 2 override is allowed,
+     *   if it returns 2 overwrite is allowed,
      */
-    override := false
-    cmd := exec.Command("/etc/file-bucket/hooks/pre-push.sh")
-    exit_code := cmd.Run();
-    if exit_code.Sys() == 2 {
-        override = true
-    }
-    if exit_code.Sys() == 1 {
+    overwrite := false
+    cmd := exec.Command("/etc/file-bucket/pre-push.sh", token)
+    /*if err := cmd.Start(); err == nil {
+      if err := cmd.Wait(); err != nil {*/
+    err = cmd.Run()
+    exitCode := err.(*exec.ExitError)
+    log.Printf("exitCode: %d", exitCode.Sys())
+    if exitCode.Sys().(syscall.WaitStatus).ExitStatus() == 1 {
         http.Error(w, "upload aborted due to pre-push hook", 409)
         return
     }
+    if exitCode.Sys().(syscall.WaitStatus).ExitStatus() == 2 {
+        overwrite = true
+    }
+    /*
+        }
+    }*/
 
+    /* ensure that the file doesn't yet exists */
     path := filepath.Join(conf.Home, token)
     dst_file := filepath.Join(path, handler.Filename)
-    if _, err = os.Stat(dst_file); err == nil {
+    if _, err = os.Stat(dst_file); err == nil && overwrite == false {
         http.Error(w, "file exists", 405)
         return
     }
@@ -59,14 +69,19 @@ func BucketRepoHandler(w http.ResponseWriter, req *http.Request) {
     }
 
     file_w, err := os.Create(dst_file)
-    if err != nil { panic(err) }
-    defer file_w.Close()
+    if err != nil {
+        panic(err)
+    }
 
     fmt.Printf(" * Recieving file %s\n", dst_file)
     if _, err = io.Copy(file_w, file_r); err != nil {
         panic(err)
     }
+    file_w.Close()
 
+    /* execute the post-push hook and write out the ouput*/
+    cmd = exec.Command("/etc/file-bucket/post-push.sh", token)
+    cmd.Run()
 }
 
 type Configuration struct {
