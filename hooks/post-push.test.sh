@@ -7,7 +7,4 @@
 #
 
 #test: echo info about uploaded file
-echo $* > /tmp/post-args.txt
-
-#print back to http
-echo $*
+echo $* | tee /tmp/post-args.txt
