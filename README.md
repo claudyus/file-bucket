@@ -13,6 +13,8 @@ TODO
 ## Configuration
 You should configure the buckets list and buckets home inside ```/etc/file-bucket/config.json```
 
+The bucket list can also be reload using ```SIGUSR2```, please note that only changes to bucket list are effective using this method.
+
 ## Use
 On your client you can simple push backup file using curl like:
 

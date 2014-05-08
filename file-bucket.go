@@ -8,6 +8,7 @@ import (
     "net/http"
     "os"
     "os/exec"
+    "os/signal"
     "path/filepath"
     "regexp"
     "strings"
@@ -87,6 +88,7 @@ type Configuration struct {
     Host string
     Port int
     Home string
+    ActualConfigFile string
 }
 func (c *Configuration) listenAddr() string {
     if c.Host == "" {
@@ -136,23 +138,42 @@ func (h *RegexpHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 }
 
 
+func signalHandler () {
+    ch := make(chan os.Signal)
+    signal.Notify(ch, syscall.SIGUSR2)
+    for ; true; {
+        sig := <- ch
+        log.Printf("Signal %v recieved, re-read bucket lists", sig)
+        file, err := os.Open(conf.ActualConfigFile)
+        if err == nil {
+            decoder := json.NewDecoder(file)
+            err = decoder.Decode(&conf)
+        }
+    }
+}
+
+
 func main() {
     /* open, read config file and init the struct */
-    file, err := os.Open("/etc/file-bucket/config.json")
+    conf = Configuration{}
+    conf.ActualConfigFile = "/etc/file-bucket/config.json"
+    file, err := os.Open(conf.ActualConfigFile)
     if err != nil {
-        file, err = os.Open("config.json")
+        conf.ActualConfigFile = "config.json"
+        file, err = os.Open(conf.ActualConfigFile)
         if err != nil {
             fmt.Println("ERROR: cannot read config file")
-            return
+            os.Exit(1)
         }
     }
     decoder := json.NewDecoder(file)
-    conf = Configuration{}
     err = decoder.Decode(&conf)
     if err != nil {
       fmt.Println("error:", err)
     }
-    fmt.Println(conf)
+
+    /* setup signal handler */
+    go signalHandler();
 
     /*
      * Setup the webserver goroutine using
