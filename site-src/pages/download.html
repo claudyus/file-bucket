@@ -1,0 +1,17 @@
+{% extends "base.html" %}
+
+{% block body %}
+<div class="jumbotron">
+  <div class="container">
+    <h1>Download now</h1>
+    <p>Written in go and borrowed to open-source community.</p>
+  </div>
+</div>
+
+<div class="container">
+	<ul>
+		<li><i class="glyphicon glyphicon-cloud-download"></i> <a href="https://github.com/claudyus/file-bucket/archive/master.zip">Download source code</a></li>
+		<li><i class="glyphicon glyphicon-cloud-download"></i> <a href="{% url '/file-bucket.deb' %}">Download debian package</a></li>
+	</ul>
+</div>
+{% endblock %}
