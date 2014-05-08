@@ -16,10 +16,10 @@ import (
 
 var conf Configuration
 
-// test with curl -X POST localhost:1234/upload -F  file=@<FILE>
+
 func BucketRepoHandler(w http.ResponseWriter, req *http.Request) {
 
-    // token validation
+    /* token validation */
     token := strings.Split(req.URL.Path, "/")[1]
     if !conf.bucketExists(token) {
         http.Error(w, "token doesn't exist", 403)
@@ -81,6 +81,7 @@ func BucketRepoHandler(w http.ResponseWriter, req *http.Request) {
     w.Write(out)
 }
 
+
 type Configuration struct {
     Buckets []string
     Host string
@@ -105,6 +106,7 @@ func (c *Configuration) bucketExists(name string) bool {
     return false
 }
 
+
 /*
  * http regex handler copied by
  * http://stackoverflow.com/questions/6564558/wildcards-in-the-pattern-for-http-handlefunc
@@ -114,18 +116,16 @@ type route struct {
     handler http.Handler
 }
 
+
 type RegexpHandler struct {
     routes []*route
 }
-
 func (h *RegexpHandler) Handler(pattern *regexp.Regexp, handler http.Handler) {
     h.routes = append(h.routes, &route{pattern, handler})
 }
-
 func (h *RegexpHandler) HandleFunc(pattern *regexp.Regexp, handler func(http.ResponseWriter, *http.Request)) {
     h.routes = append(h.routes, &route{pattern, http.HandlerFunc(handler)})
 }
-
 func (h *RegexpHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
     for _, route := range h.routes {
         if route.pattern.MatchString(r.URL.Path) {
@@ -135,15 +135,14 @@ func (h *RegexpHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
     }
 }
 
+
 func main() {
-    /*
-     * open read config file and init the struct
-     */
+    /* open, read config file and init the struct */
     file, err := os.Open("/etc/file-bucket/config.json")
     if err != nil {
         file, err = os.Open("config.json")
         if err != nil {
-            fmt.Println("ERROR cannot read config file")
+            fmt.Println("ERROR: cannot read config file")
             return
         }
     }
