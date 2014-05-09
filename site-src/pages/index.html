@@ -103,14 +103,29 @@
       <a name="user-content-hooks-examples" class="anchor" href="#hooks-examples"><span class="octicon octicon-link"></span></a>Hooks examples</h3>
 
       <p>Some scripts files as example are availables inside the hooks/ directory.</p>
-
+      <div class="contributor">
+      </div>
     </div>
 
     <div class="col-lg-5">
-      <h2>Pretty URLs</h2>
-      <p>Cactus can prettify URLs, so you can turn <code>/about.html</code> into a fancier <code>/about/</code>.</p>
+      <h2>Contributors</h2>
+      <div id="contributors"></div>
     </div>
-  </div>
-</div>
-</div>
+{% endblock %}
+{% block script %}
+  <script>
+    $( document ).ready(function() {
+      $.ajax('https://api.github.com/repos/claudyus/file-bucket/stats/contributors',
+        {
+          success: function (data, status) {
+            for (var i = data.length - 1; i >= 0; i--) {
+              var author = data[i].author;
+              $('#contributors').append('<div class="contributor"><img src=' + author.avatar_url + '/>' +
+                '<strong><a href="' + author.html_url + '">' + author.login + '</a></strong>' +
+                '<commits><i class="icon-plus-sign"></i>' + data[i].total + '</commits></div>');
+            }
+          }
+        });
+    });
+  </script>
 {% endblock %}
