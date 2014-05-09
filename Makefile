@@ -3,7 +3,7 @@ build: file-bucket.go
 	go build file-bucket.go
 
 package: build
-	sudo rm -rf build
+	sudo rm -rf build/
 	mkdir -p build/
 	echo 2.0 > build/debian-binary
 	echo "Package: file-bucket" > build/control
@@ -26,4 +26,8 @@ package: build
 	tar cvzf build/data.tar.gz -C build usr etc
 	tar cvzf build/control.tar.gz -C build control
 	cd build && ar rc file-bucket.deb debian-binary control.tar.gz data.tar.gz && cd ..
-	mv build/file-bucket.deb file-bucket_`git describe --tags`.deb
+	mv build/file-bucket.deb gh-pages/file-bucket_`git describe --tags`.deb
+	sudo rm -fr build/
+
+site: package
+	make -C gh-pages/
