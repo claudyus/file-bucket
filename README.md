@@ -8,7 +8,11 @@ To enhanced security each server can **only** write into it's own bucket, so if 
 
 ## Installation
 
-TODO
+To install the file-bucket on debian system you can dowload the package from http://claudyus.github.io/file-bucket/ install it with ```dpkg```:
+```
+$ wget http://claudyus.github.io/file-bucket/file-bucket_VERSION.deb
+$ dpkg -i file-bucket_VERSION.deb
+```
 
 ## Configuration
 You should configure the buckets list and buckets home inside ```/etc/file-bucket/config.json```

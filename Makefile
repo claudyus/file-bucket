@@ -26,3 +26,4 @@ package: build
 	tar cvzf build/data.tar.gz -C build usr etc
 	tar cvzf build/control.tar.gz -C build control
 	cd build && ar rc file-bucket.deb debian-binary control.tar.gz data.tar.gz && cd ..
+	mv build/file-bucket.deb file-bucket_`git describe --tags`.deb

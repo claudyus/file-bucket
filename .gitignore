@@ -4,3 +4,5 @@ config.yaml
 buckets/*
 file-bucket
 build/*
+site-src/*
+*.deb
