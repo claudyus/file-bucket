@@ -108,6 +108,8 @@
     </div>
 
     <div class="col-lg-5">
+      <h2>Project stargazers</h2>
+      <div id="stars"></div>
       <h2>Contributors</h2>
       <div id="contributors"></div>
     </div>
@@ -124,8 +126,17 @@
                 '<strong><a href="' + author.html_url + '">' + author.login + '</a></strong>' +
                 '<commits><i class="icon-plus-sign"></i>' + data[i].total + '</commits></div>');
             }
-          }
-        });
+        }
+      });
+      $.ajax('https://api.github.com/repos/claudyus/file-bucket/stargazers',
+        {
+          success: function (data, status) {
+            for (var i = data.length - 1; i >= 0; i--) {
+              var author = data[i].author;
+              $('#stars').append('<div class="contributor"><img src=' + author.avatar_url + ' class="img-circle"/></div>');
+            }
+        }
+      });
     });
   </script>
 {% endblock %}

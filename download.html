@@ -49,10 +49,18 @@
 </div>
 
 <div class="container">
-	<ul>
-		<li><i class="glyphicon glyphicon-cloud-download"></i> <a href="https://github.com/claudyus/file-bucket/archive/master.zip">Download source code</a></li>
-		<li><i class="glyphicon glyphicon-cloud-download"></i> <a href="file-bucket.deb">Download debian package</a></li>
-	</ul>
+	<i class="glyphicon glyphicon-cloud-download"></i> <a href="https://github.com/claudyus/file-bucket/archive/master.zip">Download source code</a>
+	<h2>Download debian package</h2>
+	<table class="table">
+		<thead>
+			<tr>
+				<th>File</th>
+				<th>MD5SUM</th>
+			</tr>
+		</thead>
+		<tbody id="debian">
+		</tbody>
+	</table>
 </div>
 
     <div class="github-fork-ribbon-wrapper right">
@@ -65,6 +73,19 @@
     <script src="static/js/vendor/bootstrap.js"></script>
     <script src="static/js/main.js"></script>
     
-    
+  <script>
+    $( document ).ready(function() {
+      $.ajax('static/md5sum.json',
+        {
+          success: function (data, status) {
+            for (var i = data.length - 1; i >= 0; i--) {
+              var file = data[i];
+              $('#debian').append('<tr><td><a href="' + file.file + '">' + file.file + '</a></td><td>' + file.md5 + '</td></tr>')
+            }
+          }
+        });
+    });
+  </script>
+
   </body>
 </html>
