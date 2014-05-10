@@ -31,9 +31,9 @@
           success: function (data, status) {
             for (var i = data.length - 1; i >= 0; i--) {
               var author = data[i].author;
-              $('#contributors').append('<div class="contributor"><img src=' + author.avatar_url + '/>' +
+              $('#contributors').append('<div class="contributor"><img src="' + author.avatar_url + '"/>' +
                 '<strong><a href="' + author.html_url + '">' + author.login + '</a></strong>' +
-                '<commits><i class="icon-plus-sign"></i>' + data[i].total + '</commits></div>');
+                '<commits><i class="glyphicon glyphicon-plus"></i>' + data[i].total + ' commits</commits></div>');
             }
           }
         });
@@ -42,7 +42,7 @@
           success: function (data, status) {
             for (var i = data.length - 1; i >= 0; i--) {
               var author = data[i];
-              $('#stars').append('<div class="contributor"><img src=' + author.avatar_url + ' class="img-circle"/></div>');
+              $('#stars').append('<a href="' + author.html_url + '"><img src="' + author.avatar_url + '" class="img-circle star"/></a>');
             }
           }
         });
