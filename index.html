@@ -52,103 +52,12 @@
   <!-- Example row of columns -->
   <div class="row">
 
-    <div class="col-lg-7">
-      <p>An http server, with write only permission for backup solution.</p>
-
-      <p>The idea is to allow clients to push backup files to centralized server over LAN, unlike other backup solution file-bucket doesn't use the classic username/password pair to auth the user but a single 32-byte long token.</p>
-
-      <p>To enhanced security each server can <strong>only</strong> write into it's own bucket, so if a server is compromised the attacker can only guess the server token but it cannot read old backups neither discover or read other server backup files.</p>
-
-      <h2>
-      <a name="user-content-installation" class="anchor" href="#installation"><span class="octicon octicon-link"></span></a>Installation</h2>
-
-      <p>TODO</p>
-
-      <h2>
-      <a name="user-content-configuration" class="anchor" href="#configuration"><span class="octicon octicon-link"></span></a>Configuration</h2>
-
-      <p>You should configure the buckets list and buckets home inside <code>/etc/file-bucket/config.json</code></p>
-
-      <p>The bucket list can also be reload using <code>SIGUSR2</code>, please note that only changes to bucket list are effective using this method.</p>
-
-      <h2>
-      <a name="user-content-use" class="anchor" href="#use"><span class="octicon octicon-link"></span></a>Use</h2>
-
-      <p>On your client you can simple push backup file using curl like:</p>
-
-      <pre><code>$ curl -X POST &lt;serverip&gt;:1234/&lt;bucket_token&gt; -F file=@&lt;file&gt;
-      </code></pre>
-
-      <p>The server will responde with <code>200</code> on success or the following errorcode are used:</p>
-
-      <table>
-      <thead><tr>
-      <th>ErrorCode</th>
-      <th>Detail</th>
-      </tr></thead>
-      <tbody>
-      <tr>
-      <td>403</td>
-      <td>given token doesn't exist</td>
-      </tr>
-      <tr>
-      <td>412</td>
-      <td>missed file in form post</td>
-      </tr>
-      <tr>
-      <td>405</td>
-      <td>file yet exist on filesystem</td>
-      </tr>
-      <tr>
-      <td>401</td>
-      <td>cannot create bucket dirs</td>
-      </tr>
-      <tr>
-      <td>409</td>
-      <td>abort due to pre-push script (see below)</td>
-      </tr>
-      </tbody>
-      </table><h2>
-      <a name="user-content-extending-the-behaviour" class="anchor" href="#extending-the-behaviour"><span class="octicon octicon-link"></span></a>Extending the behaviour</h2>
-
-      <p><code>file-bucket</code> support a series of hooks that can be used to extend the default behaviour.
-      For example you can email someone when a file is pushed or deploy the file as a lxc container or the contained files in an automatic way.</p>
-
-      <p>At the moment the following hooks are defined:</p>
-
-      <ul>
-      <li>pre-push.sh</li>
-      <li>post-push.sh</li>
-      </ul><p>The <code>/etc/file-bucket/pre-push.sh</code> script is executed before the check of the file presence on the filesystem is executed.
-      This script should return <strong>0</strong> to allow the file upload, should return <strong>1</strong> to abort the upload and could return <strong>2</strong> to allow file overwrite.
-      This script is called with the arguments:</p>
-
-      <ul>
-      <li>bucket token</li>
-      <li>upload filename</li>
-      <li>file size (TODO)</li>
-      <li>remote ip_client:port</li>
-      </ul><p>The <code>/etc/file-bucket/post-push.sh</code> script is executed after the file upload and can be used to manipulate the file itself.
-      This script is called with the arguments:</p>
-
-      <ul>
-      <li>bucket_token</li>
-      <li>complete_filename_with_path</li>
-      <li>remote ip_client:port</li>
-      </ul><p>The stdout of this command il passed back to the client as http body. Http return code is set to 200</p>
-
-      <p><strong>Note: All hooks script should have executable flag set.</strong></p>
-
-      <h3>
-      <a name="user-content-hooks-examples" class="anchor" href="#hooks-examples"><span class="octicon octicon-link"></span></a>Hooks examples</h3>
-
-      <p>Some scripts files as example are availables inside the hooks/ directory.</p>
-      <div class="contributor">
-      </div>
+    <div class="col-lg-7" id="readme">
     </div>
 
     <div class="col-lg-5">
       <h2>Project stargazers</h2>
+      <p><a href="https://github.com/claudyus/file-bucket" target="_blank" class="btn btn-success btn-primary"><i class="glyphicon glyphicon-star glyphicon-white"></i> Do you like the idea? Star the project!</a></p> 
       <div id="stars"></div>
       <h2>Contributors</h2>
       <div id="contributors"></div>
@@ -175,8 +84,8 @@
                 '<strong><a href="' + author.html_url + '">' + author.login + '</a></strong>' +
                 '<commits><i class="icon-plus-sign"></i>' + data[i].total + '</commits></div>');
             }
-        }
-      });
+          }
+        });
       $.ajax('https://api.github.com/repos/claudyus/file-bucket/stargazers',
         {
           success: function (data, status) {
@@ -184,8 +93,12 @@
               var author = data[i];
               $('#stars').append('<div class="contributor"><img src=' + author.avatar_url + ' class="img-circle"/></div>');
             }
-        }
-      });
+          }
+        });
+      $.get('static/README.html',
+        function (data, status) {
+          $('#readme').append($('article', data));
+        }, "html");
     });
   </script>
 
