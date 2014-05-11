@@ -2,19 +2,8 @@
 build: file-bucket.go
 	go build file-bucket.go
 
-package: build
+debian: build
 	sudo rm -rf build/
-	mkdir -p build/
-	echo 2.0 > build/debian-binary
-	echo "Package: file-bucket" > build/control
-	echo "Version: `git describe --tags`" >> build/control
-	echo "Vcs-Git: https://github.com/claudyus/file-bucket.git" >> build/control
-	echo "Architecture: amd64" >> build/control
-	echo "Section: net" >> build/control
-	echo "Maintainer: Claudio Mignanti <c.mignanti@gmail.com>" >> build/control
-	echo "Priority: optional" >> build/control
-	echo "Description: No-auth backup system over HTTP" >> build/control
-	echo " Built" `date`
 	mkdir -p build/usr/local/bin
 	mkdir -p build/etc/init
 	mkdir -p build/etc/file-bucket
@@ -23,11 +12,16 @@ package: build
 	cp config.json build/etc/file-bucket/config.example.json
 	sudo chown -R root: build/usr
 	sudo chown -R root: build/etc
+	# copy and modify debian package info
+	cp debian/* build
+	sed -i "s/SIZE/`du build/ | tail -1 | cut -f 1`/g" build/control
+	sed -i "s/VERSION/`git describe --tags`/g" build/control
+	sed -i "s/DATE/`date`/g" build/control
+	# build the deb file
 	tar cvzf build/data.tar.gz -C build usr etc
 	tar cvzf build/control.tar.gz -C build control
 	cd build && ar rc file-bucket.deb debian-binary control.tar.gz data.tar.gz && cd ..
 	mv build/file-bucket.deb gh-pages/file-bucket_`git describe --tags`.deb
-	sudo rm -fr build/
 
-site: package
+site: debian
 	make -C gh-pages/
