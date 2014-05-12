@@ -12,7 +12,8 @@
   <!-- Example row of columns -->
   <div class="row">
 
-    <div class="col-lg-7" id="readme">
+    <div class="col-lg-7">
+      {% include "README.html" %}
     </div>
 
     <div class="col-lg-5">
@@ -46,10 +47,6 @@
             }
           }
         });
-      $.get('static/README.html',
-        function (data, status) {
-          $('#readme').append($('article', data));
-        }, "html");
     });
   </script>
 {% endblock %}

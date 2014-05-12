@@ -53,7 +53,113 @@
   <!-- Example row of columns -->
   <div class="row">
 
-    <div class="col-lg-7" id="readme">
+    <div class="col-lg-7">
+      <p>An http server, with write only permission for backup solution.</p>
+<p>The idea is to allow clients to push backup files to centralized server over LAN, unlike other backup solution file-bucket doesn't use the classic username/password pair to auth the user but a single 32-byte long token.</p>
+<p>To enhanced security each server can <strong>only</strong> write into it's own bucket, so if a server is compromised the attacker can only guess the server token but it cannot read old backups neither discover or read other server backup files.</p>
+<div class="section" id="installation">
+<h1>Installation</h1>
+<p>To install the file-bucket on debian system you can dowload the package from <a class="reference external" href="http://claudyus.github.io/file-bucket/">http://claudyus.github.io/file-bucket/</a> install it with <tt class="docutils literal">dpkg</tt>:</p>
+<pre class="literal-block">
+$ wget http://claudyus.github.io/file-bucket/file-bucket_VERSION.deb
+$ dpkg -i file-bucket_VERSION.deb
+</pre>
+<div class="section" id="configuration">
+<h2>Configuration</h2>
+<p>You should configure the buckets list and buckets home inside <tt class="docutils literal"><span class="pre">/etc/file-bucket/config.json</span></tt></p>
+<p>The bucket list can also be reload using <tt class="docutils literal">SIGUSR2</tt>, please note that only changes to bucket list are effective using this method.</p>
+</div>
+<div class="section" id="use">
+<h2>Use</h2>
+<p>On your client you can simple push backup file using curl like:</p>
+<pre class="literal-block">
+$ curl -X POST &lt;serverip&gt;:1234/&lt;bucket_token&gt; -F file=&#64;&lt;file&gt;
+</pre>
+<p>The server will responde with <tt class="docutils literal">200</tt> on success or with the following errorcode are used:</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="21%" />
+<col width="79%" />
+</colgroup>
+<thead valign="bottom">
+<tr><th class="head">ErrorCode</th>
+<th class="head">Detail</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr><td>403</td>
+<td>given token doesn't exist</td>
+</tr>
+<tr><td>412</td>
+<td>missed file in form post</td>
+</tr>
+<tr><td>405</td>
+<td>file yet exist on filesystem</td>
+</tr>
+<tr><td>401</td>
+<td>cannot create bucket dirs</td>
+</tr>
+<tr><td>409</td>
+<td>abort due to pre-push script (see below)</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<div class="section" id="extending-the-behaviour">
+<h1>Extending the behaviour</h1>
+<p><tt class="docutils literal"><span class="pre">file-bucket</span></tt> support a series of hooks that can be used to extend the default behaviour.
+For example you can email someone when a file is pushed or deploy the file as a lxc container or the contained files in an automatic way.</p>
+<p>At the moment the following hooks are defined:</p>
+<ul class="simple">
+<li>pre-push.sh</li>
+<li>post-push.sh</li>
+</ul>
+<p>The <tt class="docutils literal"><span class="pre">/etc/file-bucket/pre-push.sh</span></tt> script is executed before the check of the file presence on the filesystem is executed.
+This script should return <strong>0</strong> to allow the file upload, should return <strong>1</strong> to abort the upload and could return <strong>2</strong> to allow file overwrite.
+This script is called with the arguments:</p>
+<ul class="simple">
+<li>bucket token</li>
+<li>upload filename</li>
+<li>file size (TODO)</li>
+<li>remote ip_client:port</li>
+</ul>
+<p>The <tt class="docutils literal"><span class="pre">/etc/file-bucket/post-push.sh</span></tt> script is executed after the file upload and can be used to manipulate the file itself.
+This script is called with the arguments:</p>
+<ul class="simple">
+<li>bucket token</li>
+<li>complete filename with path</li>
+<li>remote ip_client:port</li>
+</ul>
+<p>The stdout of this command is passed back to the client as http body. Http return code is than set to 200.</p>
+<p><strong>Note: All hooks script should have executable flag set.</strong></p>
+<div class="section" id="hooks-examples">
+<h2>Hooks examples</h2>
+<p>Some scripts files as example are availables inside the <tt class="docutils literal">hooks/</tt> directory.</p>
+</div>
+</div>
+<div class="section" id="license">
+<h1>LICENSE</h1>
+<p>The MIT License (MIT)</p>
+<p>Copyright (c) 2014 Claudio Mignanti &lt;<a class="reference external" href="mailto:c.mignanti&#64;gmail.com">c.mignanti&#64;gmail.com</a>&gt;</p>
+<p>Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the &quot;Software&quot;), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:</p>
+<p>The above copyright notice and this permission notice shall be included in
+all copies or substantial portions of the Software.</p>
+<p>THE SOFTWARE IS PROVIDED &quot;AS IS&quot;, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+THE SOFTWARE.</p>
+</div>
+
+
     </div>
 
     <div class="col-lg-5">
@@ -96,10 +202,6 @@
             }
           }
         });
-      $.get('static/README.html',
-        function (data, status) {
-          $('#readme').append($('article', data));
-        }, "html");
     });
   </script>
 
