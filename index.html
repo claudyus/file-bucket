@@ -166,6 +166,13 @@ THE SOFTWARE.</p>
       <h2>Project stargazers</h2>
       <p><a href="https://github.com/claudyus/file-bucket" target="_blank" class="btn btn-success btn-primary"><i class="glyphicon glyphicon-star glyphicon-white"></i> Do you like the idea? Star the project!</a></p> 
       <div id="stars"></div>
+
+      <h2>Languages</h2>
+      <div id="langs">
+        <canvas id="langs" width="200" height="200"></canvas>
+        <ul></ul>
+      </div>
+
       <h2>Contributors</h2>
       <div id="contributors"></div>
     </div>
@@ -178,6 +185,7 @@ THE SOFTWARE.</p>
 
     <script src="static/js/vendor/jquery-1.10.1.js"></script>
     <script src="static/js/vendor/bootstrap.js"></script>
+    <script src="static/js/vendor/Chart.min.js"></script>
     <script src="static/js/main.js"></script>
     
   <script>
@@ -201,6 +209,17 @@ THE SOFTWARE.</p>
               $('#stars').append('<a href="' + author.html_url + '"><img src="' + author.avatar_url + '" class="img-circle star"/></a>');
             }
           }
+        });
+      $.get('https://api.github.com/repos/claudyus/file-bucket/languages',
+        function (data, status) {
+          var ctx = $("#langs canvas").get(0).getContext("2d");
+          data_graph = []
+          for(var k in data) {
+            col_lang = '#'+(Math.random()*0xFFFFFF<<0).toString(16)
+            data_graph.push({value: data[k], color: col_lang })
+            $("#langs ul").append('<li><strong>' + k + '</strong></li>')
+          }
+          new Chart(ctx).Doughnut(data_graph, {animation : true, animationSteps: 100})
         });
     });
   </script>
