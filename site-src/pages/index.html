@@ -12,13 +12,21 @@
   <!-- Example row of columns -->
   <div class="row">
 
-    <div class="col-lg-7" id="readme">
+    <div class="col-lg-7">
+      {% include "README.html" %}
     </div>
 
     <div class="col-lg-5">
       <h2>Project stargazers</h2>
       <p><a href="https://github.com/claudyus/file-bucket" target="_blank" class="btn btn-success btn-primary"><i class="glyphicon glyphicon-star glyphicon-white"></i> Do you like the idea? Star the project!</a></p> 
       <div id="stars"></div>
+
+      <h2>Languages</h2>
+      <div id="langs">
+        <canvas id="langs" width="200" height="200"></canvas>
+        <ul></ul>
+      </div>
+
       <h2>Contributors</h2>
       <div id="contributors"></div>
     </div>
@@ -46,10 +54,17 @@
             }
           }
         });
-      $.get('static/README.html',
+      $.get('https://api.github.com/repos/claudyus/file-bucket/languages',
         function (data, status) {
-          $('#readme').append($('article', data));
-        }, "html");
+          var ctx = $("#langs canvas").get(0).getContext("2d");
+          data_graph = []
+          for(var k in data) {
+            col_lang = '#'+(Math.random()*0xFFFFFF<<0).toString(16)
+            data_graph.push({value: data[k], color: col_lang })
+            $("#langs ul").append('<li><strong>' + k + '</strong></li>')
+          }
+          new Chart(ctx).Doughnut(data_graph, {animation : true, animationSteps: 100})
+        });
     });
   </script>
 {% endblock %}
