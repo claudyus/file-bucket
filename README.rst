@@ -69,8 +69,8 @@ This script is called with the arguments:
 The ``/etc/file-bucket/post-push.sh`` script is executed after the file upload and can be used to manipulate the file itself.
 This script is called with the arguments:
 
-- bucket_token
-- complete_filename_with_path
+- bucket token
+- complete filename with path
 - remote ip_client:port
 
 The stdout of this command is passed back to the client as http body. Http return code is than set to 200.

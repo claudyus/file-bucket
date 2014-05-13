@@ -42,13 +42,18 @@ func BucketRepoHandler(w http.ResponseWriter, req *http.Request) {
     cmd := exec.Command("/etc/file-bucket/pre-push.sh", token,
         handler.Filename, "0", req.RemoteAddr)  // FIXME find the file size
     err = cmd.Run()
-    exitCode := err.(*exec.ExitError)
-    if exitCode.Sys().(syscall.WaitStatus).ExitStatus() == 1 {
-        http.Error(w, "upload aborted due to pre-push hook", 409)
-        return
-    }
-    if exitCode.Sys().(syscall.WaitStatus).ExitStatus() == 2 {
-        overwrite = true
+    // command return a I/O error o exitcode != 0
+    if err != nil {
+        ec, ok := err.(*exec.ExitError);
+        if ok {
+            if ec.Sys().(syscall.WaitStatus).ExitStatus() == 1 {
+                http.Error(w, "upload aborted due to pre-push hook", 409)
+                return
+            }
+            if ec.Sys().(syscall.WaitStatus).ExitStatus() == 2 {
+                overwrite = true
+            }
+        }
     }
 
     /* ensure that the file doesn't yet exists */
@@ -78,8 +83,10 @@ func BucketRepoHandler(w http.ResponseWriter, req *http.Request) {
     file_w.Close()
 
     /* execute the post-push hook and return stdout to client */
-    out, _:= exec.Command("/etc/file-bucket/post-push.sh", token, dst_file, req.RemoteAddr).Output()
-    w.Write(out)
+    out, err := exec.Command("/etc/file-bucket/post-push.sh", token, dst_file, req.RemoteAddr).Output()
+    if err == nil {
+        w.Write(out)
+    }
 }
 
 
