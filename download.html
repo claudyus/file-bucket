@@ -60,6 +60,13 @@
 			</tr>
 		</thead>
 		<tbody id="debian">
+      
+        <tr><td><a href="file-bucket_0.1-7-g7009efc.deb">file-bucket_0.1-7-g7009efc.deb</a></td><td>0a027273820d63a22220f513a5f27372</td></tr>
+      
+        <tr><td><a href="file-bucket_0.2-2-g47dfdd0.deb">file-bucket_0.2-2-g47dfdd0.deb</a></td><td>1292ffcfca10318b9acb48fea9840986</td></tr>
+      
+        <tr><td><a href="file-bucket_0.2.deb">file-bucket_0.2.deb</a></td><td>4bb2d212dcb41e8b515f43fe68e104fa</td></tr>
+      
 		</tbody>
 	</table>
 </div>
@@ -83,19 +90,6 @@
       ga('send', 'pageview');
     </script>
     
-  <script>
-    $( document ).ready(function() {
-      $.ajax('static/md5sum.json',
-        {
-          success: function (data, status) {
-            for (var i = data.length - 1; i >= 0; i--) {
-              var file = data[i];
-              $('#debian').append('<tr><td><a href="' + file.file + '">' + file.file + '</a></td><td>' + file.md5 + '</td></tr>')
-            }
-          }
-        });
-    });
-  </script>
-
+    
   </body>
 </html>
