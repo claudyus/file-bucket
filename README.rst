@@ -19,6 +19,7 @@ Configuration
 ^^^^^^^^^^^^^
 
 You should configure the buckets list and buckets home inside ``/etc/file-bucket/config.json``
+To override this settings you can pass ``--config <file>`` as command line parameters.
 
 The bucket list can also be reload using ``SIGUSR2``, please note that only changes to bucket list are effective using this method.
 

@@ -5,6 +5,7 @@ import (
     "fmt"
     "io"
     "log"
+    "flag"
     "net/http"
     "os"
     "os/exec"
@@ -161,17 +162,18 @@ func signalHandler () {
 
 
 func main() {
+
+    /* parse the command line */
+    var config = flag.String("config", "/etc/file-bucket/config.json", "set configuration file")
+    flag.Parse()
+
     /* open, read config file and init the struct */
     conf = Configuration{}
-    conf.ActualConfigFile = "/etc/file-bucket/config.json"
+    conf.ActualConfigFile = *config;
     file, err := os.Open(conf.ActualConfigFile)
     if err != nil {
-        conf.ActualConfigFile = "config.json"
-        file, err = os.Open(conf.ActualConfigFile)
-        if err != nil {
-            fmt.Println("ERROR: cannot read config file")
-            os.Exit(1)
-        }
+        fmt.Println("ERROR: cannot read config file")
+        os.Exit(1)
     }
     decoder := json.NewDecoder(file)
     err = decoder.Decode(&conf)
