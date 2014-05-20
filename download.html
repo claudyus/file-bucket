@@ -50,7 +50,6 @@
 </div>
 
 <div class="container">
-	<i class="glyphicon glyphicon-cloud-download"></i> <a href="https://github.com/claudyus/file-bucket/archive/master.zip">Download source code</a>
 	<h2>Download debian package</h2>
 	<table class="table">
 		<thead>
@@ -69,6 +68,11 @@
       
 		</tbody>
 	</table>
+
+    <h2><i class="glyphicon glyphicon-tags"></i> Download tagged version source</h2>
+    <div>
+      <ul id="tagged"></ul>
+    </div>
 </div>
 
     <div class="github-fork-ribbon-wrapper right">
@@ -90,6 +94,19 @@
       ga('send', 'pageview');
     </script>
     
-    
+  <script>
+    $( document ).ready(function() {
+        $.ajax('https://api.github.com/repos/claudyus/file-bucket/tags',
+        {
+          success: function (data, status) {
+            for (var i = 0; i <= data.length; i++) {
+              var dati = data[i];
+              $('#tagged').append('<li>Download <a href="' + dati.zipball_url + '">file-bucket ' + dati.name + '</a> source</li>')
+            }
+          }
+        });
+    });
+  </script>
+
   </body>
 </html>
