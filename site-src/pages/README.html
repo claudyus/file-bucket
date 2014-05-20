@@ -10,7 +10,8 @@ $ dpkg -i file-bucket_VERSION.deb
 </pre>
 <div class="section" id="configuration">
 <h2>Configuration</h2>
-<p>You should configure the buckets list and buckets home inside <tt class="docutils literal"><span class="pre">/etc/file-bucket/config.json</span></tt></p>
+<p>You should configure the buckets list and buckets home inside <tt class="docutils literal"><span class="pre">/etc/file-bucket/config.json</span></tt>
+To override this settings you can pass <tt class="docutils literal"><span class="pre">--config</span> &lt;file&gt;</tt> as command line parameters.</p>
 <p>The bucket list can also be reload using <tt class="docutils literal">SIGUSR2</tt>, please note that only changes to bucket list are effective using this method.</p>
 </div>
 <div class="section" id="use">
