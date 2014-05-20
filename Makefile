@@ -23,5 +23,9 @@ debian: build
 	cd build && ar rc file-bucket.deb debian-binary control.tar.gz data.tar.gz && cd ..
 	mv build/file-bucket.deb gh-pages/file-bucket_`git describe --tags`.deb
 
-site: debian
+clone:
+	test -d gh-pages || git clone git@github.com:claudyus/file-bucket.git gh-pages
+	cd gh-pages; git checkout origin/gh-pages -b gh-pages || exit 0
+
+site: clone debian
 	make -C gh-pages/
